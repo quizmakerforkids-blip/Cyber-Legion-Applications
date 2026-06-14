@@ -29,3 +29,14 @@
   from = "/admin"
   to = "/admin.html"
   status = 200
+
+
+[[redirects]]
+  from = "/api/application-status"
+  to = "/.netlify/functions/application-status"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/update-status"
+  to = "/.netlify/functions/admin-update-status"
+  status = 200

@@ -6,13 +6,18 @@ create table if not exists public.applications (
   roblox_username text not null,
   discord_username text not null,
   answers jsonb not null,
+  status text not null default 'Pending',
+  tracking_code text not null default encode(gen_random_bytes(12), 'hex'),
   created_at timestamptz not null default now()
 );
 
 alter table public.applications
 add column if not exists application_role text not null default 'Unspecified';
 
-alter table public.applications enable row level security;
+alter table public.applications
+add column if not exists status text not null default 'Pending';
 
--- No public policies are created.
--- Netlify Functions access this table using the private service-role key.
+alter table public.applications
+add column if not exists tracking_code text not null default encode(gen_random_bytes(12), 'hex');
+
+alter table public.applications enable row level security;
