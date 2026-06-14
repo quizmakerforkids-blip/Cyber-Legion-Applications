@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Legion — Staff Applications</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="badge">CYBER LEGION RECRUITMENT</div>
+    <h1>⚔️ Staff Applications</h1>
+    <p class="muted">
+      Apply for an official Cyber Legion staff position. Choose the role you want,
+      answer honestly, and submit one complete application.
+    </p>
+  </header>
+
+  <form id="applicationForm">
+    <section class="panel">
+      <div class="section-title"><span>🎯</span><h2>Select a Position</h2></div>
+      <div class="field">
+        <label>Position applying for <span class="req">*</span></label>
+        <select id="applicationRole" name="Position Applying For" required>
+          <option value="">Choose a position</option>
+          <option value="Trial Moderator">Trial Moderator</option>
+          <option value="Moderator">Moderator</option>
+          <option value="Administrator">Administrator</option>
+          <option value="Co-Owner">Co-Owner</option>
+          <option value="Recruiter">Recruiter</option>
+          <option value="Event Host">Event Host</option>
+          <option value="Alliance Manager">Alliance Manager</option>
+          <option value="Content Creator">Content Creator</option>
+        </select>
+      </div>
+      <div id="roleDescription" class="message"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>📌</span><h2>Basic Information</h2></div>
+      <div class="grid">
+        <div class="field"><label>Roblox username <span class="req">*</span></label><input name="Roblox Username" required maxlength="80"></div>
+        <div class="field"><label>Discord username <span class="req">*</span></label><input name="Discord Username" required maxlength="80"></div>
+        <div class="field"><label>Age or age range <span class="req">*</span></label><input name="Age or Age Range" required></div>
+        <div class="field"><label>Timezone <span class="req">*</span></label><input name="Timezone" placeholder="Example: IST / GMT+5:30" required></div>
+        <div class="field"><label>How long have you been in Cyber Legion?</label><input name="Time in Cyber Legion"></div>
+        <div class="field"><label>Current clan role</label><input name="Current Clan Role"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>⚔️</span><h2>General Experience</h2></div>
+      <div class="field"><label>Have you held staff or leadership roles before?</label><textarea name="Previous Staff Experience"></textarea></div>
+      <div class="field"><label>Which clans or communities have you previously joined?</label><textarea name="Previous Clans"></textarea></div>
+      <div class="field"><label>How familiar are you with The Strongest Battlegrounds?</label><textarea name="TSB Familiarity"></textarea></div>
+      <div class="field"><label>Describe your current TSB skill level.</label><textarea name="TSB Skill Level"></textarea></div>
+      <div class="field"><label>Why do you want this position? <span class="req">*</span></label><textarea name="Why This Position" required></textarea></div>
+      <div class="field"><label>Why should we choose you? <span class="req">*</span></label><textarea name="Why Choose You" required></textarea></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>🧩</span><h2>Position-Specific Questions</h2></div>
+      <div id="roleQuestions">
+        <div class="empty">Choose a position above to load its questions.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>🛡️</span><h2>Staff Situations</h2></div>
+      <div class="field"><label>Two members are insulting each other. How would you handle it?</label><textarea name="Member Argument Situation"></textarea></div>
+      <div class="field"><label>A friend breaks an important rule. What would you do?</label><textarea name="Friend Rule Violation"></textarea></div>
+      <div class="field"><label>A high-ranking member abuses their power. What would you do?</label><textarea name="Staff Abuse Situation"></textarea></div>
+      <div class="field"><label>A member accuses someone without proof. How would you investigate?</label><textarea name="Unproven Accusation"></textarea></div>
+      <div class="field"><label>The owner is offline during an urgent problem. What would you do?</label><textarea name="Owner Offline Emergency"></textarea></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>⏰</span><h2>Activity and Commitment</h2></div>
+      <div class="grid">
+        <div class="field"><label>How many hours can you be active daily?</label><input name="Daily Activity"></div>
+        <div class="field"><label>Which days are you usually available?</label><input name="Available Days"></div>
+      </div>
+      <div class="field"><label>Can you attend meetings, trainings, events, and clan activities?</label><select name="Can Attend Activities"><option>Yes</option><option>Sometimes</option><option>No</option></select></div>
+      <div class="field"><label>How long do you plan to remain in Cyber Legion?</label><input name="Planned Membership Length"></div>
+      <div class="field"><label>Have you ever been warned, muted, kicked, or banned in Cyber Legion?</label><textarea name="Previous Punishments"></textarea></div>
+      <div class="field"><label>Anything else staff should know?</label><textarea name="Additional Information"></textarea></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title"><span>✅</span><h2>Agreement</h2></div>
+      <label class="check"><input type="checkbox" name="Agreement: No Abuse" required><span>I will not abuse permissions or authority.</span></label>
+      <label class="check"><input type="checkbox" name="Agreement: Respect" required><span>I will respect members, allies, and staff.</span></label>
+      <label class="check"><input type="checkbox" name="Agreement: Confidentiality" required><span>I will keep private clan information confidential.</span></label>
+      <label class="check"><input type="checkbox" name="Agreement: Fairness" required><span>I will act fairly, including when friends are involved.</span></label>
+      <label class="check"><input type="checkbox" name="Agreement: Role Removal" required><span>I understand my role may be removed for inactivity, toxicity, dishonesty, betrayal, or abuse.</span></label>
+      <label class="check"><input type="checkbox" name="Declaration" required><span>I confirm that all information in this application is truthful.</span></label>
+
+      <div id="message" class="message"></div>
+      <div class="actions">
+        <button class="primary" id="submitBtn" type="submit">Submit Application</button>
+        <button class="secondary" type="reset">Clear Form</button>
+      </div>
+    </section>
+  </form>
+
+  <div class="footer">Cyber Legion • Official Staff Recruitment</div>
+</div>
+
+<script>
+const roleSelect = document.getElementById("applicationRole");
+const roleQuestions = document.getElementById("roleQuestions");
+const roleDescription = document.getElementById("roleDescription");
+const form = document.getElementById("applicationForm");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+const roleData = {
+  "Trial Moderator": {
+    description: "Entry-level moderation role for applicants who need to prove activity, maturity, and rule knowledge.",
+    questions: [
+      "What do you think a Trial Moderator should do every day?",
+      "How would you react if a member ignored your warning?",
+      "How would you prove that you are ready to become a full Moderator?",
+      "Which Cyber Legion rules are most important to enforce?"
+    ]
+  },
+  "Moderator": {
+    description: "Moderators keep chats and clan spaces safe, organized, respectful, and free from unnecessary drama.",
+    questions: [
+      "What moderation experience do you have?",
+      "How would you decide between a warning, mute, kick, or ban?",
+      "How would you handle spam, toxicity, or repeated disrespect?",
+      "How would you document punishments and evidence?",
+      "What would you do if another moderator made an unfair decision?"
+    ]
+  },
+  "Administrator": {
+    description: "Administrators oversee moderators, manage systems, and handle serious staff or community issues.",
+    questions: [
+      "What experience do you have managing moderators or staff teams?",
+      "How would you train a new moderator?",
+      "How would you handle staff inactivity?",
+      "What changes would you make to improve Cyber Legion's staff system?",
+      "How would you respond to a serious raid or security issue?",
+      "How would you handle an appeal against a moderator's punishment?"
+    ]
+  },
+  "Co-Owner": {
+    description: "Co-Owners help lead the entire clan and must be highly trusted, mature, active, and responsible.",
+    questions: [
+      "What qualities make you suitable for Co-Owner?",
+      "What weaknesses do you have as a leader?",
+      "How would you help Cyber Legion grow?",
+      "What improvements would you make to the clan?",
+      "How would you keep members and staff active?",
+      "How would you handle disagreements with the Owner?",
+      "How would you protect private clan information?",
+      "What would you do if another high rank betrayed the clan?"
+    ]
+  },
+  "Recruiter": {
+    description: "Recruiters find active, skilled, loyal members and help new recruits join the clan properly.",
+    questions: [
+      "How would you find new members?",
+      "How would you test a recruit's skill and attitude?",
+      "How would you prevent alt accounts, trolls, or disloyal recruits?",
+      "How many members do you believe you can recruit each week?",
+      "How would you welcome and guide a new member?",
+      "What qualities should every Cyber Legion recruit have?"
+    ]
+  },
+  "Event Host": {
+    description: "Event Hosts organize tournaments, trainings, game nights, and activities that keep the clan active.",
+    questions: [
+      "What events would you host for Cyber Legion?",
+      "How often could you host events?",
+      "How would you announce and organize an event?",
+      "How would you handle rule-breaking during an event?",
+      "How would you make events fair and enjoyable?",
+      "Describe one complete event idea from start to finish."
+    ]
+  },
+  "Alliance Manager": {
+    description: "Alliance Managers communicate with partnered clans and protect Cyber Legion's relationships and reputation.",
+    questions: [
+      "What experience do you have with alliances or diplomacy?",
+      "How would you judge whether another clan is a good alliance partner?",
+      "How would you respond if an allied clan member caused drama?",
+      "How would you organize alliance events or battles?",
+      "What information should never be shared with an allied clan?",
+      "How would you end an alliance professionally if necessary?"
+    ]
+  },
+  "Content Creator": {
+    description: "Content Creators make videos, edits, graphics, announcements, or promotional content for Cyber Legion.",
+    questions: [
+      "What type of content can you create?",
+      "Which editing or design tools do you use?",
+      "Can you provide links to examples of your work?",
+      "How often can you create content?",
+      "How would you promote Cyber Legion without making it look spammy?",
+      "Describe a video, thumbnail, or promotional post you would create for the clan."
+    ]
+  }
+};
+
+function loadRoleQuestions() {
+  const selected = roleSelect.value;
+  const data = roleData[selected];
+
+  if (!data) {
+    roleDescription.className = "message";
+    roleQuestions.innerHTML = '<div class="empty">Choose a position above to load its questions.</div>';
+    return;
+  }
+
+  roleDescription.textContent = data.description;
+  roleDescription.className = "message good";
+
+  roleQuestions.innerHTML = data.questions.map((question, index) => `
+    <div class="field">
+      <label>${index + 1}. ${question} <span class="req">*</span></label>
+      <textarea name="${selected}: ${question}" required></textarea>
+    </div>
+  `).join("");
+}
+
+roleSelect.addEventListener("change", loadRoleQuestions);
+
+form.addEventListener("reset", () => {
+  setTimeout(() => {
+    roleDescription.className = "message";
+    roleQuestions.innerHTML = '<div class="empty">Choose a position above to load its questions.</div>';
+    message.className = "message";
+  }, 0);
+});
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!roleSelect.value) {
+    roleSelect.focus();
+    return;
+  }
+
+  message.className = "message";
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+
+  const answers = {};
+  for (const element of form.elements) {
+    if (!element.name || ["submit", "reset"].includes(element.type)) continue;
+    answers[element.name] = element.type === "checkbox" ? element.checked : element.value.trim();
+  }
+
+  try {
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        application_role: roleSelect.value,
+        roblox_username: answers["Roblox Username"],
+        discord_username: answers["Discord Username"],
+        answers
+      })
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Submission failed.");
+
+    message.textContent = `${roleSelect.value} application submitted successfully.`;
+    message.className = "message good";
+    form.reset();
+    window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "message bad";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Application";
+  }
+});
+</script>
+</body>
+</html>
