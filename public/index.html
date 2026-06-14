@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Legion — Applications</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="badge">CYBER LEGION RECRUITMENT</div>
+    <h1>⚔️ Staff Application</h1>
+    <p class="muted">A shorter application for every staff role. Submit once, then view your answers and current status here.</p>
+  </header>
+
+  <section id="trackerPanel" class="panel hidden">
+    <div class="section-title"><span>📍</span><h2>Your Application</h2></div>
+    <div id="trackerContent"></div>
+    <div class="actions">
+      <button class="secondary" id="refreshStatusBtn" type="button">Refresh Status</button>
+      <button class="danger" id="newApplicationBtn" type="button">Start New Application</button>
+    </div>
+  </section>
+
+  <form id="applicationForm">
+    <section class="panel">
+      <div class="section-title"><span>📌</span><h2>Application Details</h2></div>
+
+      <div class="field">
+        <label>Position <span class="req">*</span></label>
+        <select name="Position Applying For" required>
+          <option value="">Choose a position</option>
+          <option>Trial Moderator</option>
+          <option>Moderator</option>
+          <option>Administrator</option>
+          <option>Co-Owner</option>
+          <option>Recruiter</option>
+          <option>Event Host</option>
+          <option>Alliance Manager</option>
+          <option>Content Creator</option>
+        </select>
+      </div>
+
+      <div class="grid">
+        <div class="field"><label>Roblox username <span class="req">*</span></label><input name="Roblox Username" required maxlength="80"></div>
+        <div class="field"><label>Discord username <span class="req">*</span></label><input name="Discord Username" required maxlength="80"></div>
+        <div class="field"><label>Age or age range <span class="req">*</span></label><input name="Age or Age Range" required></div>
+        <div class="field"><label>Timezone <span class="req">*</span></label><input name="Timezone" placeholder="Example: IST" required></div>
+      </div>
+
+      <div class="field"><label>Why do you want this role? <span class="req">*</span></label><textarea name="Why This Role" required></textarea></div>
+      <div class="field"><label>What experience or useful skills do you have? <span class="req">*</span></label><textarea name="Experience and Skills" required></textarea></div>
+      <div class="field"><label>How active can you be each day? <span class="req">*</span></label><input name="Daily Activity" required placeholder="Example: 2–3 hours"></div>
+      <div class="field"><label>How would you handle two members arguing? <span class="req">*</span></label><textarea name="Argument Situation" required></textarea></div>
+      <div class="field"><label>What would you do if your friend broke a clan rule? <span class="req">*</span></label><textarea name="Friend Rule Violation" required></textarea></div>
+      <div class="field"><label>Anything else we should know?</label><textarea name="Additional Information"></textarea></div>
+
+      <label class="check"><input type="checkbox" name="Agreement" required><span>I confirm my answers are truthful and I will not abuse staff permissions.</span></label>
+
+      <div id="message" class="message"></div>
+      <div class="actions">
+        <button class="primary" id="submitBtn" type="submit">Submit Application</button>
+        <button class="secondary" type="reset">Clear</button>
+      </div>
+    </section>
+  </form>
+
+  <div class="footer">Cyber Legion • Official Staff Recruitment</div>
+</div>
+
+<script>
+const form = document.getElementById("applicationForm");
+const trackerPanel = document.getElementById("trackerPanel");
+const trackerContent = document.getElementById("trackerContent");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function statusStyle(status) {
+  if (status === "Accepted") return "good";
+  if (status === "Rejected") return "bad";
+  return "";
+}
+
+function renderApplication(app) {
+  const answers = Object.entries(app.answers || {}).map(([key, value]) => `
+    <div class="answer">
+      <strong>${escapeHtml(key)}</strong>
+      <div>${escapeHtml(typeof value === "boolean" ? (value ? "Yes" : "No") : (value || "No answer"))}</div>
+    </div>
+  `).join("");
+
+  trackerContent.innerHTML = `
+    <div class="card" style="box-shadow:none">
+      <div class="card-head">
+        <div>
+          <div class="badge">${escapeHtml(app.application_role)}</div>
+          <div class="username" style="margin-top:10px">🎮 ${escapeHtml(app.roblox_username)}</div>
+          <div class="discord">Discord: ${escapeHtml(app.discord_username)}</div>
+          <div class="date">Submitted: ${new Date(app.created_at).toLocaleString()}</div>
+        </div>
+        <div class="message ${statusStyle(app.status)}" style="display:block;margin:0">
+          Status: <strong>${escapeHtml(app.status || "Pending")}</strong>
+        </div>
+      </div>
+      <div class="answer-grid">${answers}</div>
+    </div>
+  `;
+
+  trackerPanel.classList.remove("hidden");
+  form.classList.add("hidden");
+}
+
+async function loadSavedApplication() {
+  const id = localStorage.getItem("cyberLegionApplicationId");
+  const code = localStorage.getItem("cyberLegionTrackingCode");
+  if (!id || !code) return;
+
+  const response = await fetch(`/api/application-status?id=${encodeURIComponent(id)}&code=${encodeURIComponent(code)}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "Could not load application.");
+  renderApplication(data.application);
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  message.className = "message";
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+
+  const answers = {};
+  for (const element of form.elements) {
+    if (!element.name || ["submit","reset"].includes(element.type)) continue;
+    answers[element.name] = element.type === "checkbox" ? element.checked : element.value.trim();
+  }
+
+  try {
+    const response = await fetch("/api/submit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        application_role: answers["Position Applying For"],
+        roblox_username: answers["Roblox Username"],
+        discord_username: answers["Discord Username"],
+        answers
+      })
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Submission failed.");
+
+    localStorage.setItem("cyberLegionApplicationId", result.id);
+    localStorage.setItem("cyberLegionTrackingCode", result.tracking_code);
+    renderApplication(result.application);
+    window.scrollTo({top:0, behavior:"smooth"});
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "message bad";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Application";
+  }
+});
+
+document.getElementById("refreshStatusBtn").addEventListener("click", async () => {
+  try { await loadSavedApplication(); }
+  catch (error) { alert(error.message); }
+});
+
+document.getElementById("newApplicationBtn").addEventListener("click", () => {
+  if (!confirm("Remove this saved application from this browser and start a new one?")) return;
+  localStorage.removeItem("cyberLegionApplicationId");
+  localStorage.removeItem("cyberLegionTrackingCode");
+  trackerPanel.classList.add("hidden");
+  form.classList.remove("hidden");
+  form.reset();
+});
+
+loadSavedApplication().catch(console.error);
+</script>
+</body>
+</html>

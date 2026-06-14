@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Legion — Application Admin</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<section id="loginView" class="login panel">
+  <div class="badge">CYBER LEGION ADMIN</div>
+  <h1 style="font-size:34px">🔒 Staff Login</h1>
+  <p class="muted">Enter the private admin password to view submitted applications.</p>
+  <form id="loginForm">
+    <div class="field">
+      <label>Admin password</label>
+      <input type="password" id="password" required autocomplete="current-password">
+    </div>
+    <div id="loginMessage" class="message"></div>
+    <button class="primary" type="submit">Open Dashboard</button>
+  </form>
+</section>
+
+<div id="dashboard" class="wrap hidden">
+  <header class="hero">
+    <div class="topbar">
+      <div>
+        <div class="badge">CYBER LEGION ADMIN</div>
+        <h1>📋 Submitted Applications</h1>
+        <p class="muted" id="countText">Loading applications...</p>
+      </div>
+      <button class="secondary" id="logoutBtn">Log Out</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="topbar">
+      <input class="search" id="searchInput" placeholder="Search Roblox or Discord username">
+      <select id="roleFilter" style="max-width:250px">
+        <option value="">All positions</option>
+        <option>Trial Moderator</option>
+        <option>Moderator</option>
+        <option>Administrator</option>
+        <option>Co-Owner</option>
+        <option>Recruiter</option>
+        <option>Event Host</option>
+        <option>Alliance Manager</option>
+        <option>Content Creator</option>
+      </select>
+      <button class="secondary" id="refreshBtn">Refresh</button>
+    </div>
+    <div id="cards" class="cards"></div>
+  </section>
+</div>
+
+<script>
+const loginView = document.getElementById("loginView");
+const dashboard = document.getElementById("dashboard");
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
+const cards = document.getElementById("cards");
+const countText = document.getElementById("countText");
+const searchInput = document.getElementById("searchInput");
+const roleFilter = document.getElementById("roleFilter");
+let applications = [];
+
+function token() { return sessionStorage.getItem("cyberLegionAdminToken") || ""; }
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function showLogin(message = "") {
+  sessionStorage.removeItem("cyberLegionAdminToken");
+  dashboard.classList.add("hidden");
+  loginView.classList.remove("hidden");
+  if (message) {
+    loginMessage.textContent = message;
+    loginMessage.className = "message bad";
+  }
+}
+
+function render() {
+  const query = searchInput.value.trim().toLowerCase();
+  const selectedRole = roleFilter.value;
+  const filtered = applications.filter(app => {
+    const matchesSearch =
+      String(app.roblox_username).toLowerCase().includes(query) ||
+      String(app.discord_username).toLowerCase().includes(query);
+    const matchesRole = !selectedRole || app.application_role === selectedRole;
+    return matchesSearch && matchesRole;
+  });
+
+  countText.textContent = `${filtered.length} application${filtered.length === 1 ? "" : "s"} shown`;
+
+  if (!filtered.length) {
+    cards.innerHTML = '<div class="empty">No matching applications found.</div>';
+    return;
+  }
+
+  cards.innerHTML = filtered.map(app => {
+    const answers = Object.entries(app.answers || {}).map(([question, answer]) => `
+      <div class="answer">
+        <strong>${escapeHtml(question)}</strong>
+        <div>${escapeHtml(typeof answer === "boolean" ? (answer ? "Agreed / Yes" : "No") : (answer || "No answer"))}</div>
+      </div>`).join("");
+
+    return `
+      <article class="card">
+        <div class="card-head">
+          <div>
+            <div class="badge">${escapeHtml(app.application_role || "Unspecified")}</div>
+            <div class="username" style="margin-top:10px">🎮 ${escapeHtml(app.roblox_username)}</div>
+            <div class="discord">Discord: ${escapeHtml(app.discord_username)}</div>
+            <div class="date">${new Date(app.created_at).toLocaleString()}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select onchange="updateStatus('${app.id}', this.value)" style="width:auto">
+              ${["Pending","Under Review","Accepted","Rejected"].map(status =>
+                `<option ${app.status === status ? "selected" : ""}>${status}</option>`
+              ).join("")}
+            </select>
+            <button class="danger" onclick="deleteApplication('${app.id}')">Delete</button>
+          </div>
+        </div>
+        <div class="answer-grid">${answers}</div>
+      </article>`;
+  }).join("");
+}
+
+async function loadApplications() {
+  cards.innerHTML = '<div class="empty">Loading...</div>';
+  const response = await fetch("/api/admin/applications", {
+    headers: { Authorization: `Bearer ${token()}` }
+  });
+
+  if (response.status === 401) {
+    showLogin("Your login expired. Please sign in again.");
+    return;
+  }
+
+  const data = await response.json();
+  if (!response.ok) {
+    cards.innerHTML = `<div class="message bad">${escapeHtml(data.error || "Could not load applications.")}</div>`;
+    return;
+  }
+
+  applications = data.applications || [];
+  render();
+}
+
+loginForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  loginMessage.className = "message";
+
+  const response = await fetch("/api/admin/login", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({password: document.getElementById("password").value})
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    loginMessage.textContent = data.error || "Login failed.";
+    loginMessage.className = "message bad";
+    return;
+  }
+
+  sessionStorage.setItem("cyberLegionAdminToken", data.token);
+  document.getElementById("password").value = "";
+  loginView.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  loadApplications();
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => showLogin());
+document.getElementById("refreshBtn").addEventListener("click", loadApplications);
+searchInput.addEventListener("input", render);
+roleFilter.addEventListener("change", render);
+
+window.updateStatus = async function(id, status) {
+  const response = await fetch("/api/admin/update-status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token()}`
+    },
+    body: JSON.stringify({id, status})
+  });
+
+  if (response.status === 401) return showLogin("Your login expired.");
+  const data = await response.json();
+  if (!response.ok) return alert(data.error || "Could not update status.");
+
+  const index = applications.findIndex(app => app.id === id);
+  if (index !== -1) applications[index] = data.application;
+  render();
+};
+
+window.deleteApplication = async function(id) {
+  if (!confirm("Delete this application permanently?")) return;
+
+  const response = await fetch("/api/admin/delete", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token()}`
+    },
+    body: JSON.stringify({id})
+  });
+
+  if (response.status === 401) return showLogin("Your login expired.");
+  if (!response.ok) return alert("Could not delete the application.");
+
+  applications = applications.filter(app => app.id !== id);
+  render();
+};
+
+if (token()) {
+  loginView.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  loadApplications();
+}
+</script>
+</body>
+</html>

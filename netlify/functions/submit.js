@@ -1,0 +1,46 @@
+const crypto = require("crypto");
+const { json, getSupabase } = require("./_shared");
+
+exports.handler = async (event) => {
+  if (event.httpMethod !== "POST") return json(405, { error: "Method not allowed." });
+
+  try {
+    const body = JSON.parse(event.body || "{}");
+    const role = String(body.application_role || "").trim().slice(0, 80);
+    const roblox = String(body.roblox_username || "").trim().slice(0, 80);
+    const discord = String(body.discord_username || "").trim().slice(0, 80);
+    const answers = body.answers;
+
+    if (!role || !roblox || !discord || !answers || typeof answers !== "object") {
+      return json(400, { error: "Position, usernames, and required answers are missing." });
+    }
+
+    const trackingCode = crypto.randomBytes(12).toString("hex");
+    const supabase = getSupabase();
+
+    const { data, error } = await supabase
+      .from("applications")
+      .insert({
+        application_role: role,
+        roblox_username: roblox,
+        discord_username: discord,
+        answers,
+        status: "Pending",
+        tracking_code: trackingCode
+      })
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    return json(201, {
+      success: true,
+      id: data.id,
+      tracking_code: trackingCode,
+      application: data
+    });
+  } catch (error) {
+    console.error(error);
+    return json(500, { error: "Could not submit the application." });
+  }
+};
